@@ -1,31 +1,24 @@
-package com.mepv.model;
+package com.mepv.dto;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import java.time.Instant;
 import java.util.UUID;
 
-@Entity
-public class Vehicle extends PanacheEntity {
+public class VehicleDTO {
 
     private String make;
     private String model;
     private String color;
     private int year;
-    @Column(name = "created_at")
-    private final Instant createdAt = Instant.now();
-    private final UUID uuid = UUID.randomUUID();
+    private UUID uuid;
 
-    public Vehicle() {
+    public VehicleDTO() {
     }
 
-    public Vehicle(String make, String model, String color, int year) {
+    public VehicleDTO(String make, String model, String color, int year, UUID uuid) {
         this.make = make;
         this.model = model;
         this.color = color;
         this.year = year;
+        this.uuid = uuid;
     }
 
     public String getMake() {
@@ -58,6 +51,10 @@ public class Vehicle extends PanacheEntity {
 
     public void setYear(int year) {
         this.year = year;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
     }
 
     public UUID getUuid() {

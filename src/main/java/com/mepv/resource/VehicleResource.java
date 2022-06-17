@@ -1,12 +1,18 @@
 package com.mepv.resource;
 
+import com.mepv.dto.UserDTO;
+import com.mepv.dto.VehicleDTO;
+import com.mepv.model.User;
 import com.mepv.model.Vehicle;
 
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.transaction.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Path("/api/v1/vehicles")
 @Produces(MediaType.APPLICATION_JSON)
@@ -16,17 +22,20 @@ import java.util.List;
 public class VehicleResource {
 
     @GET
-    public List<Vehicle> listAllVehicles() {
-        return Vehicle.listAll();
+    @RolesAllowed({"User", "Admin"})
+    public Response listAllVehicles() {
+        return Response.ok(vehicleList()).build();
     }
 
     @GET
-    @Path("{id}")
-    public Vehicle findVehicleById(@PathParam("id") Long id) {
-        return (Vehicle) Vehicle.findByIdOptional(id).orElseThrow(NotFoundException::new);
+    @RolesAllowed({"User", "Admin"})
+    @Path("{uuid}")
+    public Vehicle findVehicleById(@PathParam("uuid") UUID uuid) {
+        return Vehicle.find("uuid", uuid).firstResult();
     }
 
     @POST
+    @RolesAllowed({"User", "Admin"})
     @Transactional
     public Response persistVehicle(Vehicle vehicle, @Context UriInfo uriInfo) {
         Vehicle.persist(vehicle);
@@ -35,9 +44,64 @@ public class VehicleResource {
     }
 
     @DELETE
-    @Path("{id}")
+    @RolesAllowed({"User", "Admin"})
+    @Path("{uuid}")
     @Transactional
-    public void deleteVehicle(@PathParam("id") Long id) {
-        Vehicle.deleteById(id);
+    public void deleteVehicle(@PathParam("uuid") UUID uuid) {
+        Vehicle.delete("uuid", uuid);
+    }
+
+    @PUT
+    @RolesAllowed({"User", "Admin"})
+    @Path("{uuid}")
+    @Transactional
+    public Response updateVehicle(Vehicle v, @PathParam("uuid") UUID uuid) {
+        Vehicle vehicle = Vehicle.find("uuid", uuid).firstResult();
+        vehicle.setMake(v.getMake());
+        vehicle.setModel(v.getModel());
+        vehicle.setColor(v.getColor());
+        vehicle.setYear(v.getYear());
+        Vehicle.persist(vehicle);
+        return Response.ok().build();
+    }
+
+    @GET
+    @RolesAllowed("Admin")
+    @Path("/users")
+    public Response listAllUsers() {
+        return Response.ok(userList()).build();
+    }
+
+    @GET
+    @RolesAllowed("Admin")
+    @Path("/users/{uuid}")
+    public Response findUserByUUID(@PathParam("uuid") UUID uuid) {
+        User user = User.find("uuid", uuid).firstResult();
+        return Response.ok(new UserDTO(user.getUsername(), user.getRole(), user.getUuid())).build();
+    }
+
+    private List<VehicleDTO> vehicleList() {
+        List<Vehicle> list = Vehicle.listAll();
+        return list.
+                stream()
+                .map(v -> new VehicleDTO(
+                        v.getMake(),
+                        v.getModel(),
+                        v.getColor(),
+                        v.getYear(),
+                        v.getUuid()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    private List<UserDTO> userList() {
+        List<User> list = User.listAll();
+        return list
+                .stream()
+                .map(u -> new UserDTO(
+                        u.getUsername(),
+                        u.getRole(),
+                        u.getUuid()
+                )).collect(Collectors.toList());
     }
 }
