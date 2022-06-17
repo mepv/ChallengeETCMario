@@ -20,6 +20,6 @@ public class VehicleRepositoryTest {
         assertNotNull(vehicle.id);
 
         vehicle = Vehicle.findById(vehicle.id);
-        assertEquals("Ferrari", vehicle.make);
+        assertEquals("Ferrari", vehicle.getMake());
     }
 }
