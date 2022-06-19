@@ -1,15 +1,16 @@
 package com.mepv.resource;
 
-import com.mepv.util.ApiError;
+import com.mepv.dto.AuthResponse;
 import com.mepv.model.User;
 import com.mepv.service.GenerateTokenService;
+import com.mepv.util.ApiError;
 import io.quarkus.elytron.security.common.BcryptUtil;
 
 import javax.annotation.security.PermitAll;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -28,7 +29,7 @@ public class LoginResource {
     @Inject
     GenerateTokenService generateTokenService;
 
-    @GET
+    @POST
     @PermitAll
     public Response login(User userRequested) {
         String jwt;
@@ -38,7 +39,7 @@ public class LoginResource {
             user = optionalUser.orElseThrow(NoSuchElementException::new);
             if (BcryptUtil.matches(userRequested.getPassword(), user.getPassword())) {
                 jwt = generateTokenService.generateToken(user.getUsername());
-                return Response.ok(jwt).build();
+                return Response.ok(new AuthResponse(jwt)).build();
             } else {
                 return response("The password is incorrect, please verify it and try again.");
             }
