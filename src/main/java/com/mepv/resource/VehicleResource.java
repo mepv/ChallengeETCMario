@@ -45,7 +45,7 @@ public class VehicleResource {
 
     @DELETE
     @RolesAllowed({"User", "Admin"})
-    @Path("{uuid}")
+    @Path("/{uuid}")
     @Transactional
     public void deleteVehicle(@PathParam("uuid") UUID uuid) {
         Vehicle.delete("uuid", uuid);
@@ -53,7 +53,7 @@ public class VehicleResource {
 
     @PUT
     @RolesAllowed({"User", "Admin"})
-    @Path("{uuid}")
+    @Path("/{uuid}")
     @Transactional
     public Response updateVehicle(Vehicle v, @PathParam("uuid") UUID uuid) {
         Vehicle vehicle = Vehicle.find("uuid", uuid).firstResult();
