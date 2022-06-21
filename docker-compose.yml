@@ -16,10 +16,10 @@ services:
                                 condition: service_healthy
 
         quarkus-db:
-                image: postgres:14.2
+                image: postgres:alpine
                 mem_limit: 128m
-		volumes:
-			- "./src/main/resources/import.sql:/docker-entrypoint-initdb.d/import.sql"
+                volumes:
+                        - "./src/main/resources/import.sql:/docker-entrypoint-initdb.d/import.sql"
                 environment:
                         - POSTGRES_DB=vehicles_db
                         - POSTGRES_USER=mariopalacios
