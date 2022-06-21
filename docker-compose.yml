@@ -2,9 +2,6 @@ version: "3.8"
 
 services:
         quarkus-service:
-                build:
-                        context: .
-                        dockerfile: src/main/docker/Dockerfile.native
                 image: mepv/vehicle-microservice:1.0.0-SNAPSHOT
                 mem_limit: 128m
                 environment:
